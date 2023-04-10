@@ -18,7 +18,10 @@ void GameEngine::ladders_init(int ladder1_x,int ladder1_y, int ladder2_x,int lad
     _ladder3.init(ladder3_x, ladder3_y);
 
 }
-
+void GameEngine::doors_init(int d1_x, int d1_y, bool d1_exit, SKIN d1_skin, int d2_x, int d2_y, bool d2_exit, SKIN d2_skin){
+    _door1.init(d1_x,d1_y,d1_exit, d1_skin);
+    _door2.init(d2_x,d2_y,d2_exit,d2_skin);
+}
 
 void GameEngine::update(UserInput input) {
     _player.update(input); //update direction and jumping status from user inputs
@@ -33,6 +36,8 @@ void GameEngine::draw(N5110 &lcd) {
     _ladder1.draw(lcd);
     _ladder2.draw(lcd);
     _ladder3.draw(lcd);
+    _door1.draw(lcd);
+    _door2.draw(lcd);
     _player.draw(lcd);
 
 }
@@ -43,12 +48,23 @@ void GameEngine::movement(){
     bool player_stationary = _player.get_stationary();
     int height = _player.get_height();
     int ladder_height;
-    
-    if(check_ladder() && player_jumping ){
-            player_pos.y--;
-    }
    
-    else if(!player_jumping&&!player_stationary&&!player_falling){ //normal walking
+    if(player_falling){height=0;} //reset height
+    
+    if(check_ladder()){ //climbing ladder
+        if(player_jumping){
+            player_pos.y--;//
+            player_jumping=0;
+        }
+        else{
+        player_pos.y++;
+            if(check_floor_collision()){
+                player_pos.y--;
+            }   
+        }
+    }
+
+    if(!player_jumping&&!player_stationary&&!player_falling){ //normal walking
             if(_player.get_direction() == RIGHT){
                 player_pos.x+=3;
                 if(_player.get_skin() == RIGHT1){
@@ -77,6 +93,7 @@ void GameEngine::movement(){
         }
         if(check_ceiling_collision()){
             player_falling=1;
+            player_pos.y++;
         }
     }
     else if(player_jumping&&!player_stationary&&!player_falling){ //jumping left or right        
@@ -95,6 +112,8 @@ void GameEngine::movement(){
         }
         if(check_ceiling_collision()){
             player_falling=1;
+            player_pos.y++;
+
         }
     }
     else if(player_falling&&player_stationary){ //falling straight down
@@ -103,6 +122,8 @@ void GameEngine::movement(){
         if(height==0||check_floor_collision()){
             player_falling=0;
             player_jumping=0;
+            player_pos.y--;
+
         }
     }
     else if(player_falling&&!player_stationary){ //falling left or right
@@ -117,18 +138,22 @@ void GameEngine::movement(){
         if(height==0||check_floor_collision()){
             player_falling=0;
             player_jumping=0;
+            player_pos.y--;
+
         }
 
 
     }
     if(player_pos.x<1) {player_pos.x = 1;}
-    if(player_pos.x>66) {player_pos.x = 66;}
+    if(player_pos.x>74) {player_pos.x = 74;}
     if(player_pos.y<1) {player_pos.y=1;}
     _player.set_x(player_pos.x);
     _player.set_y(player_pos.y);
     _player.set_falling(player_falling);
     _player.set_jumping(player_jumping);
     _player.set_height(height);
+    _level_done=check_exit();
+
 }
 
 
@@ -154,8 +179,10 @@ bool GameEngine::check_ceiling_collision(){
 bool GameEngine::check_floor_collision(){
 
     bool floor_collision = 0;
-    int feet = _player.get_y()+17;
-    if(feet>=48){floor_collision = 1;}
+    int feet = _player.get_y()+16;
+    if(feet>=48){
+        floor_collision = 1;
+    }
     if(_player.get_direction()==LEFT){
         if(feet == _floor1.get_y() && _player.get_x() >= _floor1.get_x() && _player.get_x() <= _floor1.get_x() + _floor1.get_width()){
             floor_collision = 1;
@@ -166,7 +193,7 @@ bool GameEngine::check_floor_collision(){
         else if(feet == _floor3.get_y() && _player.get_x() >= _floor3.get_x() && _player.get_x() <= _floor3.get_x() + _floor1.get_width()){
             floor_collision = 1;
         }
-        return floor_collision;}
+    }
     else{
         if(feet == _floor1.get_y() && _player.get_x()+11 >= _floor1.get_x() && _player.get_x()+11<= _floor1.get_x()+ _floor1.get_width()){
             floor_collision = 1;
@@ -177,9 +204,12 @@ bool GameEngine::check_floor_collision(){
         else if(feet == _floor3.get_y() && _player.get_x()+11 >= _floor3.get_x() && _player.get_x()+11 <= _floor3.get_x() + _floor1.get_width()){
             floor_collision = 1;
         }
-        return floor_collision;
-
+        if(floor_collision){
+            _player.set_height(0);
+        }
     }
+        return floor_collision;
+    
 
 }
 
@@ -212,3 +242,17 @@ bool GameEngine::check_ladder(){
     return climbing_ladder;
 }
 
+bool GameEngine::check_exit(){
+    bool exiting = 0;
+    int px= _player.get_x();
+    int py= _player.get_y();
+    int d2_x = _door2.get_x();
+    int d2_y= _door2.get_y();
+    if(px+7>=d2_x && px <=d2_x+15 ){
+        if(py+16<=d2_y+17 && py+16>=d2_y){
+            printf("Player exiting\n");
+            exiting =1;
+        }
+    }
+    return exiting;
+    }
