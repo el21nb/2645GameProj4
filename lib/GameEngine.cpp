@@ -25,6 +25,7 @@ void GameEngine::doors_init(int d1_x, int d1_y, bool d1_exit, SKIN d1_skin, int 
 
 void GameEngine::update(UserInput input) {
     _player.update(input); //update direction and jumping status from user inputs
+    _snake.update();
     movement(); //update position
 }
 
@@ -39,6 +40,7 @@ void GameEngine::draw(N5110 &lcd) {
     _door1.draw(lcd);
     _door2.draw(lcd);
     _player.draw(lcd);
+    _snake.draw(lcd);
 
 }
 void GameEngine::movement(){
@@ -48,7 +50,7 @@ void GameEngine::movement(){
     bool player_stationary = _player.get_stationary();
     int height = _player.get_height();
     int ladder_height;
-   
+
     if(player_falling){height=0;} //reset height
     
     if(check_ladder()){ //climbing ladder
@@ -63,7 +65,9 @@ void GameEngine::movement(){
             }   
         }
     }
-
+    if(check_snake()){
+        _level_failed = 1;
+    }
     if(!player_jumping&&!player_stationary&&!player_falling){ //normal walking
             if(_player.get_direction() == RIGHT){
                 player_pos.x+=3;
@@ -256,3 +260,17 @@ bool GameEngine::check_exit(){
     }
     return exiting;
     }
+
+bool GameEngine::check_snake(){
+    bool snaked = 0;
+    int px= _player.get_x();
+    int py= _player.get_y();
+    int sx = _snake.get_x();
+    int sy= _snake.get_y();
+    if(py+16==sy){
+        if(px>=sx&&px<=sx+11){
+            snaked=1;
+        }
+    }
+    return snaked;    
+}
