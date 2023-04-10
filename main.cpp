@@ -1,93 +1,97 @@
-/*   Pong Game
-*    =========
-*
-*    Function:               Example pong game
-*    Circuit Schematic No.:  9 and 14 : https://github.com/ELECXJEL2645/Circuit_Schematics
-*    Required Libraries:     
-*
-*    Authored by:            Dr Craig Evans
-*    Date:                   2021
-*    Collaborators:          Andrew Knowles
-*                            Dr Tim Amsdon 
-*    Version:                1.0
-*    Revision Date:          03/2023 
-*    MBED Studio Version:    1.4.1
-*    MBED OS Version:        6.12.0
-*    Board:	                NUCLEO L476RG   */
-
-///////////// includes /////////////////////
 #include "mbed.h"
 #include "Joystick.h"
 #include "N5110.h"  
-#include "PongEngine.h"
+#include "GameEngine.h"
 #include "Utils.h"
 
+
 ///////////// defines /////////////////////
-#define PADDLE_WIDTH 2
-#define PADDLE_HEIGHT 8
-#define BALL_SIZE 2
-#define BALL_SPEED 3
+//#define PADDLE_WIDTH 2
+//#define PADDLE_HEIGHT 8
+//#define BALL_SIZE 2
+//#define BALL_SPEED 3
+
 
 ///////////// objects ///////////////////
 N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10);
 Joystick joystick(PC_1, PC_0);
 DigitalIn buttonA(BUTTON1); //onboard user button
-PongEngine pong;
+Player _player;
+//DigitalIn sw1(PC_10);
+DigitalIn sw2(PC_11);
+GameEngine game;
+
 
 ///////////// prototypes ///////////////
 void init();
 void render();
-void welcome();
-void game_over();
+void level1();
+//void welcome();
+//void game_over();
 ////////////////////////////////////////
+
+
 
 
 int main() {
     init();      // initialise devices and objects
-    welcome();   // waiting for the user to start 
-    render();    // first draw the initial frame 
+    //welcome();   // waiting for the user to start
+    //render();    // first draw the initial frame
     int fps = 10;
     thread_sleep_for(1000/fps);  // and wait for one frame period - millseconds
-    
-    int lives = 4;   // display lives on LEDs
-    
-    while (lives > 0) {  // keep looping while lives remain
-        // read the joystick input and store in a struct
-        UserInput input = {joystick.get_direction(),joystick.get_mag()};
-        lives = pong.update(input);   // update the game engine based on input    
-        render();                     // draw frame on screen
-        thread_sleep_for(1000/fps);         // and wait for one frame period - ms
-    }   
-    game_over();
+    //int lives = 4;   // display lives on LEDs
+    level1();      
+   // game_over();
+   
 }
+
 
 void init() {
     lcd.init(LPH7366_1);
     lcd.setContrast(0.5);
     joystick.init();
-    pong.init(0,8,2,2,2);     // paddle x position, paddle_height,paddle_width,ball_size,speed
+   // game.init(0,32,RIGHT1,RIGHT,48,31,14);     // (int player_x,int player_y,SKIN player_skin,PLAYER_DIRECTION player_direction,int floor1_y, int floor2_y, int floor3_y);
 }
-
 void render() {  // clear screen, re-draw and refresh
     lcd.clear();  
-    pong.draw(lcd);
+    game.draw(lcd);
     lcd.refresh();
 }
+void level1(){
+    game.player_init(0,32,RIGHT1,RIGHT); //void player_init(int player_x,int player_y,SKIN player_skin,PLAYER_DIRECTION player_direction);
+    game.floors_init(0,28,70,
+                     20,45,60,
+                     20,11,65);//(int floor1_x, int floor1_y, int floor1_width, int floor2_x, int floor2_y, int floor2_width, int floor3_x, int floor3_y, int floor3_width)
+    game.ladders_init(70,29,15,11,90,90);
+    for(int i=0;i<10000;i++){
+   // while (lives > 0) {  // keep looping while lives remain
+        // read the joystick input and store in a struct
+        UserInput input = {joystick.get_direction(),joystick.get_mag()};
+        //lives = pong.update(input);   // update the game engine based on input    
+        game.update(input);
+        render();                     // draw frame on screen
+        ThisThread::sleep_for(300ms);
+    }
+}
 
-void welcome() { // splash screen
+
+/*void welcome() { // splash screen
     lcd.printString("     Pong!    ",0,1);  
     lcd.printString("Press Nucleo",0,3);
     lcd.printString("Blue button",0,4);
     lcd.refresh();
 
+
         while (buttonA.read() == 1){
 
-         ThisThread::sleep_for(100ms);
-      
-        }
-}
 
-void game_over() { // splash screen 
+         ThisThread::sleep_for(100ms);
+     
+        }
+}*/
+
+
+/*void game_over() { // splash screen
     while (1) {
         lcd.clear();
         lcd.printString("  Game Over ",0,2);  
@@ -97,4 +101,4 @@ void game_over() { // splash screen
         lcd.refresh();
         ThisThread::sleep_for(250ms);
     }
-}
+}*/
