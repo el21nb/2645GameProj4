@@ -5,14 +5,13 @@ Snake::Snake() { }
 
 void Snake::init(int x, int y, SKIN Snake_Skin, PLAYER_DIRECTION Snake_Direction, int limit) {
     printf("Snake: Init\n");
-    _limit = limit;
-    _steps = 0;
     _x = x;
     _y = y;
+    _limit = limit;
+    _steps = 0;
     _direction = Snake_Direction;
     _skin = Snake_Skin;
 }
-
 
 void Snake::draw(N5110 &lcd) {
     printf("Snake: Draw\n");
@@ -29,7 +28,7 @@ void Snake::draw(N5110 &lcd) {
         lcd.drawSprite(_x,_y,4,11,(int *)SnakeLeft2);      
     }
     else if(_skin == RIGHT3){
-        lcd.drawSprite(_x,_y,4,11,(int *)SnakeLeft3);      
+        lcd.drawSprite(_x,_y,4,11,(int *)SnakeRight3);      
     }
     else if(_skin == LEFT3){
         lcd.drawSprite(_x,_y,4,11,(int *)SnakeLeft3);      
@@ -38,20 +37,19 @@ void Snake::draw(N5110 &lcd) {
 
 
 void Snake::update() {
+    printf("snake: update");
     if(_steps<=_limit){
         _steps++;
         if(_direction==RIGHT){
             _x+=2;
             if(_skin==RIGHT1){_skin=RIGHT2;}
             else if(_skin==RIGHT2){_skin=RIGHT3;}
-
             else if(_skin==RIGHT3){_skin=RIGHT1;}
         }
         else if(_direction==LEFT){
             _x-=2;
             if(_skin==LEFT1){_skin=LEFT2;}
             else if(_skin==LEFT2){_skin=LEFT3;}
-
             else if(_skin==LEFT3){_skin=LEFT1;}
         }
     }
@@ -92,4 +90,5 @@ PLAYER_DIRECTION Snake::get_direction(){return _direction;}
 
 
    
+
 
