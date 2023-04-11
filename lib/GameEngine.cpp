@@ -22,10 +22,16 @@ void GameEngine::doors_init(int d1_x, int d1_y, bool d1_exit, SKIN d1_skin, int 
     _door1.init(d1_x,d1_y,d1_exit, d1_skin);
     _door2.init(d2_x,d2_y,d2_exit,d2_skin);
 }
-
+void GameEngine::snake_init(int x, int y, SKIN Snake_Skin, PLAYER_DIRECTION Snake_Direction, int limit) {
+    _snake.init(x,y,Snake_Skin,Snake_Direction,limit);
+}
+void GameEngine::dragon_init(int x, int y) {
+    _dragon.init(x,y);
+}
 void GameEngine::update(UserInput input) {
     _player.update(input); //update direction and jumping status from user inputs
     _snake.update();
+    _dragon.update();
     movement(); //update position
 }
 
@@ -41,6 +47,7 @@ void GameEngine::draw(N5110 &lcd) {
     _door2.draw(lcd);
     _player.draw(lcd);
     _snake.draw(lcd);
+    _dragon.draw(lcd);
 
 }
 void GameEngine::movement(){
@@ -65,9 +72,7 @@ void GameEngine::movement(){
             }   
         }
     }
-    if(check_snake()){
-        _level_failed = 1;
-    }
+
     if(!player_jumping&&!player_stationary&&!player_falling){ //normal walking
             if(_player.get_direction() == RIGHT){
                 player_pos.x+=3;
@@ -157,6 +162,9 @@ void GameEngine::movement(){
     _player.set_jumping(player_jumping);
     _player.set_height(height);
     _level_done=check_exit();
+    if(check_snake()||check_fireball()){
+        _level_failed = 1;
+    }
 
 }
 
@@ -267,10 +275,29 @@ bool GameEngine::check_snake(){
     int py= _player.get_y();
     int sx = _snake.get_x();
     int sy= _snake.get_y();
-    if(py+16==sy){
-        if(px>=sx&&px<=sx+11){
+    if(py+16==sy+4){
+        //if(px>=sx&&px<=sx+11){
+        if(sx<=px&&px-11){
+            snaked=1;
+            
+        }
+        else if(sx>=px&&sx<=px+11){
             snaked=1;
         }
     }
     return snaked;    
+}
+
+bool GameEngine::check_fireball(){
+    bool fireballed = 0;
+    int px= _player.get_x();
+    int py= _player.get_y();
+    int fy= _dragon.get_y()+14;
+    int fx = _dragon.get_fire_x();
+    if(py+16>=fy>=py){
+        if(px>=fx>=px+12){
+            fireballed=1;
+        }
+    }
+    return fireballed;
 }
