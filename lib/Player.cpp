@@ -1,6 +1,7 @@
 
+
 #include "Player.h"
-DigitalIn sw1(PC_10);
+DigitalIn jump(PC_10);
 
 
 Player::Player() { }
@@ -70,7 +71,7 @@ void Player::update(UserInput input) { //updates DIRECTION and JUMPING (if not a
            // else{_Player_Skin = LEFT1;}
             }
     if(_jumping == 0){
-        _jumping = sw1.read();
+        _jumping = jump.read();
     }
     //if (_x<1) {_x = 1;}
     //if (_x>66) {_x = 66;}
@@ -105,6 +106,10 @@ PLAYER_DIRECTION Player::get_direction(){return _Player_Direction;}
     void Player::set_jumping(bool jumping){_jumping=jumping;}
     void Player::set_falling(bool falling){_falling=falling;}
     void Player::set_skin(SKIN skin){_Player_Skin=skin;};
+
+
+   
+
 
 
    
