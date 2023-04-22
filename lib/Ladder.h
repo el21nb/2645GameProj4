@@ -39,3 +39,4 @@ const int ladder[16][5] = {
     {1,0,0,0,1},
 };
 #endif
+
