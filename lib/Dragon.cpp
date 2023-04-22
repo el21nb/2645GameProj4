@@ -47,3 +47,8 @@ void Dragon::set_y(int y){_y=y;}
 
 
    
+
+
+
+
+   
