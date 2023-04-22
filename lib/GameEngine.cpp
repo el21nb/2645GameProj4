@@ -22,21 +22,31 @@ void GameEngine::doors_init(int d1_x, int d1_y, bool d1_exit, SKIN d1_skin, int 
     _door1.init(d1_x,d1_y,d1_exit, d1_skin);
     _door2.init(d2_x,d2_y,d2_exit,d2_skin);
 }
-void GameEngine::snake_init(int x, int y, SKIN Snake_Skin, PLAYER_DIRECTION Snake_Direction, int limit) {
-    _snake.init(x,y,Snake_Skin,Snake_Direction,limit);
+void GameEngine::wyrms_init(int s1_x, int s1_y, SKIN Wyrm1_Skin, PLAYER_DIRECTION Wyrm1_Direction, int s1_limit,int s2_x, int s2_y, SKIN Wyrm2_Skin, PLAYER_DIRECTION Wyrm2_Direction, int s2_limit, int s3_x, int s3_y, SKIN Wyrm3_Skin, PLAYER_DIRECTION Wyrm3_Direction, int s3_limit){
+
+    _wyrm1.init(s1_x,s1_y,Wyrm1_Skin,Wyrm1_Direction,s1_limit);
+    _wyrm2.init(s2_x,s2_y,Wyrm2_Skin,Wyrm2_Direction,s2_limit);
+    _wyrm3.init(s3_x,s3_y,Wyrm3_Skin,Wyrm3_Direction,s3_limit);
 }
 void GameEngine::dragon_init(int x, int y) {
     _dragon.init(x,y);
 }
+
+void GameEngine::wyrms_update(){
+    _wyrm1.update();
+    _wyrm2.update();
+    _wyrm3.update();
+}
 void GameEngine::update(UserInput input) {
     _player.update(input); //update direction and jumping status from user inputs
-    _snake.update();
+    wyrms_update();
     _dragon.update();
     movement(); //update position
 }
 
 
 void GameEngine::draw(N5110 &lcd) {
+    _dragon.draw(lcd);
     _floor1.draw(lcd);
     _floor2.draw(lcd);
     _floor3.draw(lcd);
@@ -45,9 +55,10 @@ void GameEngine::draw(N5110 &lcd) {
     _ladder3.draw(lcd);
     _door1.draw(lcd);
     _door2.draw(lcd);
+    _wyrm1.draw(lcd);
+    _wyrm2.draw(lcd);
+    _wyrm3.draw(lcd);
     _player.draw(lcd);
-    _snake.draw(lcd);
-    _dragon.draw(lcd);
 
 }
 void GameEngine::movement(){
@@ -62,11 +73,11 @@ void GameEngine::movement(){
     
     if(check_ladder()){ //climbing ladder
         if(player_jumping){
-            player_pos.y--;//
+            player_pos.y-=2;//
             player_jumping=0;
         }
         else{
-        player_pos.y++;
+        player_pos.y+=2;
             if(check_floor_collision()){
                 player_pos.y--;
             }   
@@ -162,10 +173,10 @@ void GameEngine::movement(){
     _player.set_jumping(player_jumping);
     _player.set_height(height);
     _level_done=check_exit();
-    if(check_snake()||check_fireball()){
+    if(check_wyrm()||check_fireball()){
         _level_failed = 1;
     }
-
+    _got_treasure=check_treasure();
 }
 
 
@@ -269,23 +280,25 @@ bool GameEngine::check_exit(){
     return exiting;
     }
 
-bool GameEngine::check_snake(){
-    bool snaked = 0;
+bool GameEngine::check_wyrm(){
+    bool wyrmd = 0;
     int px= _player.get_x();
     int py= _player.get_y();
-    int sx = _snake.get_x();
-    int sy= _snake.get_y();
-    if(py+16==sy+4){
-        //if(px>=sx&&px<=sx+11){
-        if(sx<=px&&px-11){
-            snaked=1;
-            
+   // int sx = _wyrm.get_x();
+  //  int sy= _wyrm.get_y();
+    int sx[3]= {_wyrm1.get_x(),_wyrm2.get_x(),_wyrm3.get_x()};
+    int sy[3]= {_wyrm1.get_y(),_wyrm2.get_y(),_wyrm3.get_y()};
+    for(int i=0;i<3;i++){
+    if(py<=sy[i]+4&&py+16>=sy[i]){
+        if(sx[i]<=px&& sx[i]+10>=px){
+            wyrmd=1;
         }
-        else if(sx>=px&&sx<=px+11){
-            snaked=1;
+        else if(sx[i]>=px&& sx[i]<=px+11){
+            wyrmd=1;
         }
     }
-    return snaked;    
+    }
+    return wyrmd;    
 }
 
 bool GameEngine::check_fireball(){
@@ -294,10 +307,26 @@ bool GameEngine::check_fireball(){
     int py= _player.get_y();
     int fy= _dragon.get_y()+14;
     int fx = _dragon.get_fire_x();
-    if(py+16>=fy>=py){
-        if(px>=fx>=px+12){
+    if(fy>=py&&fy<=py+16){
+        if(fx>=py&&fx<=py+7){
             fireballed=1;
         }
     }
     return fireballed;
+}
+
+bool GameEngine::check_treasure(){
+    int px= _player.get_x();
+    int py= _player.get_y();
+    int _got_treasure=0;
+    if(px>=70){
+        if(py>=19&& py <=37){
+            _got_treasure=1;
+        }
+    
+   // if(75<=px&&px<=84&&16<=py&&py<=23){
+  //      _got_treasure=1;
+   // }}
+    }
+    return _got_treasure;
 }
