@@ -44,6 +44,7 @@ public:
     void set_height(int height);
 
 private:
+
     int _x;
     int _y;
     int _height;
