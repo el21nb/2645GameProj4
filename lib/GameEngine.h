@@ -1,5 +1,3 @@
-
-
 #ifndef GAMEENGINE_H
 #define GAMEENGINE_H
 
@@ -9,7 +7,7 @@
 #include "Ladder.h"
 #include "Floor.h"
 #include "Door.h"
-#include "Snake.h"
+#include "Wyrm.h"
 #include "Utils.h"
 #include "Player.h"
 #include "Dragon.h"
@@ -23,8 +21,9 @@ class GameEngine {
         void floors_init(int floor1_x, int floor1_y, int floor1_width, int floor2_x, int floor2_y, int floor2_width, int floor3_x, int floor3_y, int floor3_width);
         void ladders_init(int ladder1_x,int ladder1_y, int ladder2_x,int ladder2_y, int ladder3_x,int ladder3_y);
         void doors_init(int d1_x, int d1_y, bool d1_exit, SKIN d1_skin, int d2_x, int d2_y, bool d2_exit, SKIN d2_skin);
-        void snake_init(int x, int y, SKIN Snake_Skin, PLAYER_DIRECTION Snake_Direction, int limit);
+        void wyrms_init(int s1_x, int s1_y, SKIN Wyrm1_Skin, PLAYER_DIRECTION Wyrm1_Direction, int s1_limit,int s2_x, int s2_y, SKIN Wyrm2_Skin, PLAYER_DIRECTION Wyrm2_Direction, int s2_limit, int s3_x, int s3_y, SKIN Wyrm3_Skin, PLAYER_DIRECTION Wyrm3_Direction, int s3_limit);
         void dragon_init(int x, int y);
+        void wyrms_update();
         void update(UserInput input);
         void draw(N5110 &lcd);
         void movement();
@@ -32,10 +31,12 @@ class GameEngine {
         bool check_floor_collision();
         bool check_ladder();
         bool check_exit();
-        bool check_snake();
+        bool check_wyrm();
         bool check_fireball();
+        bool check_treasure();
         bool _level_done;
         bool _level_failed;
+        bool _got_treasure;
 
     private:
         Floor _floor1;
@@ -47,13 +48,13 @@ class GameEngine {
         Ladder _ladder3;
         Door _door1;
         Door _door2;
-        Snake _snake;
+        Wyrm _wyrm1;
+        Wyrm _wyrm2;
+        Wyrm _wyrm3;
         Dragon _dragon;
 };
 
 
 #endif
-
-
 
 
