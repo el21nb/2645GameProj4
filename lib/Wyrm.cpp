@@ -1,43 +1,43 @@
-#include "Snake.h"
+#include "Wyrm.h"
 
-Snake::Snake() { }
+Wyrm::Wyrm() { }
 
 
-void Snake::init(int x, int y, SKIN Snake_Skin, PLAYER_DIRECTION Snake_Direction, int limit) {
-    printf("Snake: Init\n");
+void Wyrm::init(int x, int y, SKIN Wyrm_Skin, PLAYER_DIRECTION Wyrm_Direction, int limit) {
+    printf("Wyrm: Init\n");
     _x = x;
     _y = y;
     _limit = limit;
     _steps = 0;
-    _direction = Snake_Direction;
-    _skin = Snake_Skin;
+    _direction = Wyrm_Direction;
+    _skin = Wyrm_Skin;
 }
 
-void Snake::draw(N5110 &lcd) {
-    printf("Snake: Draw\n");
+void Wyrm::draw(N5110 &lcd) {
+    printf("Wyrm: Draw\n");
     if(_skin == RIGHT1){
-        lcd.drawSprite(_x,_y,4,11,(int *)SnakeRight1);      
+        lcd.drawSprite(_x,_y,4,11,(int *)WyrmRight1);      
     }
     else if(_skin == LEFT1){
-        lcd.drawSprite(_x,_y,4,11,(int *)SnakeLeft1);      
+        lcd.drawSprite(_x,_y,4,11,(int *)WyrmLeft1);      
     }
     else if(_skin == RIGHT2){
-        lcd.drawSprite(_x,_y,4,11,(int *)SnakeRight2);      
+        lcd.drawSprite(_x,_y,4,11,(int *)WyrmRight2);      
     }
     else if(_skin == LEFT2){
-        lcd.drawSprite(_x,_y,4,11,(int *)SnakeLeft2);      
+        lcd.drawSprite(_x,_y,4,11,(int *)WyrmLeft2);      
     }
     else if(_skin == RIGHT3){
-        lcd.drawSprite(_x,_y,4,11,(int *)SnakeRight3);      
+        lcd.drawSprite(_x,_y,4,11,(int *)WyrmRight3);      
     }
     else if(_skin == LEFT3){
-        lcd.drawSprite(_x,_y,4,11,(int *)SnakeLeft3);      
+        lcd.drawSprite(_x,_y,4,11,(int *)WyrmLeft3);      
     }
 }
 
 
-void Snake::update() {
-    printf("snake: update");
+void Wyrm::update() {
+    printf("wyrm: update");
     if(_steps<=_limit){
         _steps++;
         if(_direction==RIGHT){
@@ -68,25 +68,29 @@ void Snake::update() {
 }
 
 
-Position2D Snake::get_pos() { return {_x,_y}; }
+Position2D Wyrm::get_pos() { return {_x,_y}; }
 
 
-int Snake::get_x(){return _x;}
-int Snake::get_y(){return _y;}
+int Wyrm::get_x(){return _x;}
+int Wyrm::get_y(){return _y;}
 
 
 
 
 
-SKIN Snake::get_skin(){return _skin;}
-PLAYER_DIRECTION Snake::get_direction(){return _direction;}
+SKIN Wyrm::get_skin(){return _skin;}
+PLAYER_DIRECTION Wyrm::get_direction(){return _direction;}
 
 
     //void set_pos(Position 2D player_pos){_}
-    void Snake::set_x(int x){_x=x;}
-    void Snake::set_y(int y){_y=y;}
+    void Wyrm::set_x(int x){_x=x;}
+    void Wyrm::set_y(int y){_y=y;}
 
-    void Snake::set_skin(SKIN skin){_skin=skin;};
+    void Wyrm::set_skin(SKIN skin){_skin=skin;};
+
+
+   
+
 
 
    
