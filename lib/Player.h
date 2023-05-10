@@ -1,22 +1,10 @@
-
 #ifndef PLAYER_H
 #define PLAYER_H
 #include "mbed.h"
 #include "N5110.h"
 #include "Utils.h"
 
-/*enum SKIN{
-    LEFT1,
-    LEFT2,
-    RIGHT1,
-    RIGHT2
-};
 
-
-enum PLAYER_DIRECTION{
-    LEFT,
-    RIGHT
-};*/
 
 class Player
 {
