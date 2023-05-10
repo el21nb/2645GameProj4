@@ -15,13 +15,13 @@
 
 
 ///////////// objects ///////////////////
-N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10);
-Joystick joystick(PC_1, PC_0);
+N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); //lcd
+Joystick joystick(PC_1, PC_0); //joystick
 DigitalIn buttonA(BUTTON1); //onboard user button
-Player _player;
-Wyrm _wyrm;
+//Two input switches
 DigitalIn A(PC_10);
 DigitalIn B(PC_11);
+//LEDS to display lives
 DigitalOut led1(PA_0);
 DigitalOut led2(PA_1);
 DigitalOut led3(PA_4);
@@ -34,19 +34,23 @@ int lives;
 ///////////// prototypes ///////////////
 void init();
 void render();
-void tutorial();
+//first 4 levels:
 void introlevel();
 void level1();
 void level2();
 void level3();
+//repeat levels (escape the castle)
 void level1b();
 void level2b();
 void level3b();
-void welcome();
-void game_over();
-void death();
-void got_treasure();
-void game_complete();
+void introlevelb();
+
+void welcome(); //welcome function
+void tutorial(); //tutorial function
+void game_over();//if no lives left
+void death(); //killed by fireball or wyrm
+void got_treasure(); //collected tresure
+void game_complete(); //completed game
 
 ////////////////////////////////////////
 
@@ -54,30 +58,23 @@ void game_complete();
 
 
 int main(){
-    init();
-    lives=4;      // initialise devices and objects
-    welcome();   // waiting for the user to start
-    //render();    // first draw the initial frame
+    init(); //initialisation
+    lives=4;      // start with 4 lives
+    welcome(); //welcome function
     int fps = 10;
     thread_sleep_for(1000/fps);  // and wait for one frame period - millseconds
-    //lives = 4;
-    //introlevel();
-    //level1();      
-   // game_over();
-   
 }
 
 
-void init(){
+void init(){ //initialise objects
     lcd.init(LPH7366_1);
     lcd.setContrast(0.5);
     joystick.init();
-   // game.init(0,32,RIGHT1,RIGHT,48,31,14);     // (int player_x,int player_y,SKIN player_skin,PLAYER_DIRECTION player_direction,int floor1_y, int floor2_y, int floor3_y);
 }
 void render() {  // clear screen, re-draw and refresh
     lcd.clear();  
     game.draw(lcd);
-    if(level==3){      
+    if(level==3){     //on the third level, draw treasure  
         const int treasure[5][5] = {
             {0,1,1,1,0},
             {0,1,0,1,0},
@@ -86,24 +83,21 @@ void render() {  // clear screen, re-draw and refresh
             {1,1,1,1,1}
         };
             lcd.drawSprite(70,32,5,5,(int *)treasure);
-          /* if(_player.get_x()>=60&&_player.get_x()<=80
-            &&_player.get_y()>=15 &&_player.get_y()<=25){
-                //if(_player.get_x()>30){
-            got_treasure();
-        } */   
     }
     lcd.refresh();
 }
 
 void introlevel(){
-    led1.write(1);
+    led1.write(1); //turn on lives LEDs
     led2.write(1);
     led3.write(1);
     led4.write(1);
-    level=0;
+    level=0; //int to track level
     lcd.clear();
     printf("INTRO LEVEL");
-    game._level_done=0;
+    game._level_done=0; //reset level done flag
+    
+    //initialise all objects into the correct locations for this level
     game.player_init(0,32,RIGHT1,RIGHT); //void player_init(int player_x,int player_y,SKIN player_skin,PLAYER_DIRECTION player_direction);
     game.floors_init(30,32,40,
                      0,26,20,
@@ -112,18 +106,18 @@ void introlevel(){
     game.doors_init(0,32,0,LEFT1,69,0,1,RIGHT1);
     game.wyrms_init(50,84,RIGHT1,RIGHT,8,90,90,RIGHT1,RIGHT,8,90,90,RIGHT1,RIGHT,8);
     game.dragon_init(90,90);
+
+    //play loop:
     while(!game._level_done&&!game._level_failed){
-   // while (lives > 0) {  // keep looping while lives remain
         // read the joystick input and store in a struct
-        UserInput input = {joystick.get_direction(),joystick.get_mag()};
-        //lives = pong.update(input);   // update the game engine based on input    
-        game.update(input);
-        render();
-        ThisThread::sleep_for(200ms);
+        UserInput input = {joystick.get_direction(),joystick.get_mag()}; //get user inputs
+        game.update(input); //update everything
+        render(); //print to LCD
+        ThisThread::sleep_for(300ms); //delay
         
     }
-    if(game._level_failed){death();}
-    if(game._level_done){level1();}
+    if(game._level_failed){death();} //call lost life function
+    if(game._level_done){level1();} //call next level
 
 };
 
@@ -132,6 +126,8 @@ void level1(){
     lcd.clear();
     printf("LEVEL1");
     game._level_done=0;
+
+    //initialise all objects into the correct locations for this level
     game.player_init(0,32,RIGHT1,RIGHT); //void player_init(int player_x,int player_y,SKIN player_skin,PLAYER_DIRECTION player_direction);
     game.floors_init(20,45,50,
                      0,28,42,
@@ -139,20 +135,19 @@ void level1(){
     game.ladders_init(28,29,90,90,90,90);
     game.doors_init(0,32,0,LEFT1,60,8,1,RIGHT1);
     game.wyrms_init(0,24,RIGHT1,RIGHT,15,
-                    46,21,RIGHT1,RIGHT,10,
+                    90,90,RIGHT1,RIGHT,10,
                     90,90,RIGHT1,RIGHT,8);
     game.dragon_init(90,90);
+
+    //play loop:
     for(int i=0;i<10000;i++){
-   // while (lives > 0) {  // keep looping while lives remain
-        // read the joystick input and store in a struct
-        UserInput input = {joystick.get_direction(),joystick.get_mag()};
-        //lives = pong.update(input);   // update the game engine based on input    
-        game.update(input);
+        UserInput input = {joystick.get_direction(),joystick.get_mag()}; //get user inputs
+        game.update(input); //update everything
         render();                     // draw frame on screen
-        ThisThread::sleep_for(300ms);
-        if(game._level_failed){death();}
-        if(game._level_done){
-            level2();
+        ThisThread::sleep_for(300ms); //delay
+        if(game._level_failed){death();} //if died, call death function
+        if(game._level_done){ //if level done
+            level2();  //call next level
         }
     }
 }
@@ -162,27 +157,29 @@ void level2(){
     lcd.clear();
     printf("LEVEL1");
     game._level_done=0;
+    game._level_failed=0;
+
+    //initialise all objects into the correct locations for this level
     game.player_init(0,0,RIGHT1,RIGHT); //void player_init(int player_x,int player_y,SKIN player_skin,PLAYER_DIRECTION player_direction);
     game.floors_init(0,17,50,
                      16,34,84,
                      90,90,90);//(int floor1_x, int floor1_y, int floor1_width, int floor2_x, int floor2_y, int floor2_width, int floor3_x, int floor3_y, int floor3_width)
     game.ladders_init(50,17,59,34,90,90);
     game.doors_init(0,0,0,LEFT1,0,34,1,RIGHT1);
-    game.wyrms_init(50,30,LEFT1,LEFT,15,
-                    50,30,RIGHT1,RIGHT,10,
+    game.wyrms_init(20,30,RIGHT2,RIGHT,25,
+                    50,30,RIGHT1,RIGHT,20,
                     90,90,RIGHT1,RIGHT,8);
     game.dragon_init(90,90);
+
+    //play loop
     for(int i=0;i<10000;i++){
-   // while (lives > 0) {  // keep looping while lives remain
-        // read the joystick input and store in a struct
-        UserInput input = {joystick.get_direction(),joystick.get_mag()};
-        //lives = pong.update(input);   // update the game engine based on input    
-        game.update(input);
+        UserInput input = {joystick.get_direction(),joystick.get_mag()};//get user input
+        game.update(input); //update everything
         render();                     // draw frame on screen
-        ThisThread::sleep_for(300ms);
-        if(game._level_failed){death();}
-        if(game._level_done){
-            level3();
+        ThisThread::sleep_for(300ms); //delay
+        if(game._level_failed){death();}//if died
+        if(game._level_done){ //if level completed
+            level3(); //call next level
         }
     }
 }
@@ -190,8 +187,11 @@ void level2(){
 void level3(){
     level=3;
     lcd.clear();
-    printf("LEVEL1");
+    printf("LEVEL3");
     game._level_done=0;
+    game._level_failed=0;
+
+    //initialise all objects into the correct locations for this level
     game.player_init(0,32,RIGHT1,RIGHT); //void player_init(int player_x,int player_y,SKIN player_skin,PLAYER_DIRECTION player_direction);
     game.floors_init(41,37,60,
                      0,31,25,
@@ -200,31 +200,28 @@ void level3(){
                       10,15,
                       75,19);
     game.doors_init(0,32,0,LEFT1,90,90,1,RIGHT1);
-    game.wyrms_init(90,90,RIGHT1,RIGHT,12,
-                    90,90,LEFT1,LEFT,6,
-                    90,90,RIGHT1,RIGHT,8);
+    game.wyrms_init(100,100,RIGHT1,RIGHT,1,
+                    100,100,LEFT1,LEFT,1,
+                    100,100,RIGHT1,RIGHT,1);
     game.dragon_init(39,16);
+    //play loop:
     for(int i=0;i<10000;i++){
-   // while (lives > 0) {  // keep looping while lives remain
-        // read the joystick input and store in a struct
-        UserInput input = {joystick.get_direction(),joystick.get_mag()};
-        //lives = pong.update(input);   // update the game engine based on input    
-        game.update(input);
-        render();
-             
-              // draw frame on screen
-        ThisThread::sleep_for(300ms);
-        if(game._got_treasure){got_treasure();}
-        if(game._level_failed){death();}
-        //if(game._level_done){level3();}
+        UserInput input = {joystick.get_direction(),joystick.get_mag()}; //get user inputs
+        game.update(input); //update everything
+        render(); //draw frame
+        
+        ThisThread::sleep_for(300ms); //delay
+        if(game._got_treasure){got_treasure();} //if found treasure
+        if(game._level_failed){death();} //call next level
     }
 }
-
 void level3b(){
     level=4;
     lcd.clear();
-    printf("LEVEL1");
+    printf("LEVEL3b");
     game._level_done=0;
+
+    //initialise all objects into the correct locations for this level
     game.player_init(75,19,RIGHT1,RIGHT); //void player_init(int player_x,int player_y,SKIN player_skin,PLAYER_DIRECTION player_direction);
     game.floors_init(41,37,60,
                      0,31,25,
@@ -232,52 +229,54 @@ void level3b(){
     game.ladders_init(25,32,
                       10,15,
                       75,19);
-    game.doors_init(0,32,1,LEFT1,90,90,0,RIGHT1);
+    game.doors_init(90,90,0,RIGHT1,0,32,1,LEFT1);
     game.wyrms_init(90,90,RIGHT1,RIGHT,12,
                     90,90,LEFT1,LEFT,6,
                     90,90,RIGHT1,RIGHT,8);
     game.dragon_init(39,16);
+    //play loop:
     for(int i=0;i<10000;i++){
-   // while (lives > 0) {  // keep looping while lives remain
-        // read the joystick input and store in a struct
-        UserInput input = {joystick.get_direction(),joystick.get_mag()};
-        //lives = pong.update(input);   // update the game engine based on input    
+        UserInput input = {joystick.get_direction(),joystick.get_mag()}; //get user inputs
         game.update(input);
         render();                     // draw frame on screen
         ThisThread::sleep_for(300ms);
         if(game._level_failed){death();}
         if(game._level_done){
-            level2b();
+            level2b(); //call next level
         }
     }
 }
+
+
 
 void level2b(){
     level=5;
     lcd.clear();
     printf("LEVEL1");
     game._level_done=0;
+    game._level_failed=0;
+    //initialise all objects into the correct locations for this level
     game.player_init(0,34,RIGHT1,RIGHT); //void player_init(int player_x,int player_y,SKIN player_skin,PLAYER_DIRECTION player_direction);
     game.floors_init(0,17,50,
                      16,34,84,
                      90,90,90);//(int floor1_x, int floor1_y, int floor1_width, int floor2_x, int floor2_y, int floor2_width, int floor3_x, int floor3_y, int floor3_width)
     game.ladders_init(50,17,59,34,90,90);
-    game.doors_init(0,0,1,LEFT1,0,34,0,RIGHT1);
+    game.doors_init(0,34,0,RIGHT1,0,0,1,LEFT1);
     game.wyrms_init(50,30,LEFT1,LEFT,15,
                     50,30,RIGHT1,RIGHT,10,
                     90,90,RIGHT1,RIGHT,8);
     game.dragon_init(90,90);
+
+    //play loop:
     for(int i=0;i<10000;i++){
-   // while (lives > 0) {  // keep looping while lives remain
-        // read the joystick input and store in a struct
-        UserInput input = {joystick.get_direction(),joystick.get_mag()};
-        //lives = pong.update(input);   // update the game engine based on input    
-        game.update(input);
+
+        UserInput input = {joystick.get_direction(),joystick.get_mag()}; //get user inputs
+        game.update(input); //update everything
         render();                     // draw frame on screen
-        ThisThread::sleep_for(300ms);
-        if(game._level_failed){death();}
+        ThisThread::sleep_for(300ms); //delay
+        if(game._level_failed){death();} //lost life
         if(game._level_done){
-            level1b();
+            level1b(); //call  next level
         }
     }
 }
@@ -287,66 +286,100 @@ void level1b(){
     lcd.clear();
     printf("LEVEL1");
     game._level_done=0;
+    game._level_failed=0;
+    //initialise everything to the locations for this level
     game.player_init(60,8,RIGHT1,RIGHT); //void player_init(int player_x,int player_y,SKIN player_skin,PLAYER_DIRECTION player_direction);
     game.floors_init(20,45,50,
                      0,28,42,
                      46,25,40);//(int floor1_x, int floor1_y, int floor1_width, int floor2_x, int floor2_y, int floor2_width, int floor3_x, int floor3_y, int floor3_width)
-    game.ladders_init(28,29,90,90,90,90);
+    game.ladders_init(90,90,90,28,29,90);
     game.doors_init(0,32,1,LEFT1,60,8,0,RIGHT1);
     game.wyrms_init(0,24,RIGHT1,RIGHT,15,
-                    46,21,RIGHT1,RIGHT,10,
+                    90,90,RIGHT1,RIGHT,10,
                     90,90,RIGHT1,RIGHT,8);
     game.dragon_init(90,90);
+
+    //play loop
     for(int i=0;i<10000;i++){
-   // while (lives > 0) {  // keep looping while lives remain
-        // read the joystick input and store in a struct
+   
         UserInput input = {joystick.get_direction(),joystick.get_mag()};
-        //lives = pong.update(input);   // update the game engine based on input    
         game.update(input);
         render();                     // draw frame on screen
         ThisThread::sleep_for(300ms);
         if(game._level_failed){death();}
         if(game._level_done){
-            game_complete();
+            introlevelb();
         }
     }
 }
+void introlevelb(){
+    level=7;
+    lcd.clear();
+    printf("INTRO LEVELb");
+    game._level_done=0;
 
-void welcome() {
+    //initialise everything to the locations for this level
+    game.player_init(69,0,RIGHT1,RIGHT); //void player_init(int player_x,int player_y,SKIN player_skin,PLAYER_DIRECTION player_direction);
+    game.floors_init(30,32,40,
+                     0,26,20,
+                     50,17,65);//(int floor1_x, int floor1_y, int floor1_width, int floor2_x, int floor2_y, int floor2_width, int floor3_x, int floor3_y, int floor3_width)
+    game.ladders_init(28,32,50,17,90,90);
+    game.doors_init(69,0,1,RIGHT1,0,32,0,LEFT1);
+    game.wyrms_init(50,84,RIGHT1,RIGHT,8,90,90,RIGHT1,RIGHT,8,90,90,RIGHT1,RIGHT,8);
+    game.dragon_init(90,90);
+    //play loop
+    while(!game._level_done&&!game._level_failed){
+        UserInput input = {joystick.get_direction(),joystick.get_mag()};
+        game.update(input);
+        render();
+        ThisThread::sleep_for(200ms);//delay
+        
+    }
+    if(game._level_failed){death();} //lost life function
+    if(game._level_done){game_complete();} //game complete function
+
+};
+void welcome() { //WELCOME SCREEN
     lcd.clear();
     lcd.printString("CASTLE CRAWLER",0,1);  
     lcd.printString("A = tutorial",0,3);
     lcd.printString("B = play",0,4);
     lcd.refresh();
-    ThisThread::sleep_for(300ms);
+    ThisThread::sleep_for(300ms); //wait for button input
         while (!A.read()&&!B.read()){
         ThisThread::sleep_for(100ms);
         }
         if(A.read()){
-            tutorial();
+            tutorial(); //call tutorial function
         }
         else if(B.read()){
-            introlevel();
+            introlevel(); //call first level
         }
 }
 
 void game_over() {
+    //turn off all leds:
     led1.write(0);
     led2.write(0);
     led3.write(0);
-    led4.write(0); // splash screen
-    while (1) {
+    led4.write(0); 
+    // splash screen
+    while (!B.read()){ //wait for button input
         lcd.clear();
         lcd.printString("  Game Over ",0,2);  
+        lcd.printString("B = Exit Game",0,4);
         lcd.refresh();
         ThisThread::sleep_for(250ms);
         lcd.clear();
         lcd.refresh();
         ThisThread::sleep_for(250ms);
     }
+    if(B.read()){
+            welcome(); // return to welcome screen
+        }
 }
 
-void tutorial(){
+void tutorial(){ //exposition and tutorial
     while(!B.read()){
     lcd.clear();
     lcd.printString("WELCOME PLAYER",0,1);
@@ -389,21 +422,11 @@ void tutorial(){
     lcd.printString("to WALK. Use A",0,1);
     lcd.printString("to JUMP/CLIMB.",0,2);
     lcd.printString("AVOID wyrms,",0,3);
-    lcd.printString("spikes, fire",0,4);
+    lcd.printString("and fire",0,4);
     lcd.printString("(Press B)",0,5);
     lcd.refresh();
     }
-        while(B.read()){
-    ThisThread::sleep_for(200ms);
-    }
-    while(!B.read()){
-    lcd.clear();
-    lcd.printString("Press B",0,1);
-    lcd.printString("to exit game",0,2);
-    lcd.printString("during play.",0,3);
-    lcd.printString("(Press B)",0,5);
-    lcd.refresh();
-    }
+  
         while(B.read()){
     ThisThread::sleep_for(200ms);
     }
@@ -423,10 +446,15 @@ void tutorial(){
     introlevel();
 }
 
-void death(){
-    game._level_failed=0;
-    lives--;
-    if(lives==3){
+void death(){ //lost life function
+    lcd.clear();
+    lcd.printString("LEVEL FAILED!",0,0);
+    lcd.printString("A= retry level",0,1);
+    lcd.printString("B= exit game",0,2);
+    lcd.refresh();
+    game._level_failed=0; //reset level failed flag
+    lives--; //update lives
+    if(lives==3){ //update LEDs
         led1.write(1);
         led2.write(1);
         led3.write(1);
@@ -449,19 +477,15 @@ void death(){
         led2.write(0);
         led3.write(0);
         led4.write(0);
-        game_over();}
+        game_over();
+    }
     
-    lcd.clear();
-    lcd.printString("LEVEL FAILED!",0,0);
-    lcd.printString("A= retry level",0,1);
-    lcd.printString("B= exit game",0,2);
-    lcd.refresh();
     ThisThread::sleep_for(500ms);
-    while(!A.read()&&!B.read()){
+    while(!A.read()&&!B.read()){ //wait for button input
         ThisThread::sleep_for(200ms);
     }
-    while(1){
-        if(A.read()){
+        if(A.read()){ //restart level
+        ThisThread::sleep_for(400ms);
             if(level==0){
                 introlevel();
             }
@@ -474,16 +498,28 @@ void death(){
             else if(level==3){
                 level3();
             }
+            else if(level==4){
+                level3b();
+            }
+            else if(level==5){
+                level2b();
+            }
+            else if(level==6){
+                level1b();
+            }
+            else if(level==7){
+                introlevelb();
+            }
         }
         else if(B.read()){
-            welcome();
+            welcome(); //return to welcome screen
         }
         ThisThread::sleep_for(100ms);
     }
-}
 
-void got_treasure(){
-    if(level==3){
+
+void got_treasure(){ //found treasure function
+    if(level==3){//only run on level 3: the level with treasure
         lcd.clear();
         lcd.printString("WELL DONE!",0,0);
         lcd.printString("You have the",0,1);
@@ -493,19 +529,19 @@ void got_treasure(){
         lcd.printString("B = exit game",0,5);
         lcd.refresh();
         ThisThread::sleep_for(300ms);
-            while (!A.read()&&!B.read()){
+            while (!A.read()&&!B.read()){ //wait for button input
             ThisThread::sleep_for(100ms);
             }
             if(A.read()){
-                level3b();
+                level3b(); //call repeat third level (escape)
             }
             else if(B.read()){
-                welcome();
+                welcome(); //return to welcome screen
             }
     }
 }
 
-void game_complete(){
+void game_complete(){ //game complete function
     lcd.clear();
     lcd.printString("Nice! You",0,0);
     lcd.printString("escaped with",0,1);
@@ -513,17 +549,13 @@ void game_complete(){
     lcd.printString("A = play again",0,3);
     lcd.printString("B = exit game",0,4);
      lcd.refresh();
-    while(!A.read()&&!B.read()){
+    while(!A.read()&&!B.read()){ //wait for button input
         ThisThread::sleep_for(200ms);
     }
-    while(1){
         if(A.read()){
-            introlevel();
+            introlevel(); //first level
         }
         else if(B.read()){
-            welcome();
+            welcome(); //return to welcome screen
         }
-        ThisThread::sleep_for(100ms);
-    }
 }
-
