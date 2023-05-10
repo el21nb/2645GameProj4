@@ -38,7 +38,7 @@ struct Polar {
     float angle;
 };
 
-
+//enum to describe different skins for player, wyrms,  doors and dragon 
 enum SKIN{
     LEFT1,
     LEFT2,
@@ -48,7 +48,7 @@ enum SKIN{
     RIGHT3
 };
 
-
+//enum to describe direction of player
 enum PLAYER_DIRECTION{
     LEFT,
     RIGHT,
