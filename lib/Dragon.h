@@ -16,7 +16,6 @@ public:
     int get_y();
     int get_fire_x();
  
-    //void set_pos(Position 2D player_pos);
     void set_x(int x);
     void set_y(int y);
 
@@ -26,7 +25,7 @@ private:
     int _y;
     SKIN _skin;
 };
-
+//dragon skins: 2 with different wing positions, both facing left
 const int _dragon_L1 [21][32] = {
 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0}, 
@@ -75,6 +74,5 @@ const int _dragon_L2 [21][32] = {
 {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0}, 
 };
 #endif
-
 
 
