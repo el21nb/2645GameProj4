@@ -22,6 +22,10 @@ Player _player;
 Wyrm _wyrm;
 DigitalIn A(PC_10);
 DigitalIn B(PC_11);
+DigitalOut led1(PA_0);
+DigitalOut led2(PA_1);
+DigitalOut led3(PA_4);
+DigitalOut led4(PB_0);
 GameEngine game;
 int level;
 int lives;
@@ -51,7 +55,7 @@ void game_complete();
 
 int main(){
     init();
-    lives=5;      // initialise devices and objects
+    lives=4;      // initialise devices and objects
     welcome();   // waiting for the user to start
     //render();    // first draw the initial frame
     int fps = 10;
@@ -92,6 +96,10 @@ void render() {  // clear screen, re-draw and refresh
 }
 
 void introlevel(){
+    led1.write(1);
+    led2.write(1);
+    led3.write(1);
+    led4.write(1);
     level=0;
     lcd.clear();
     printf("INTRO LEVEL");
@@ -322,7 +330,11 @@ void welcome() {
         }
 }
 
-void game_over() { // splash screen
+void game_over() {
+    led1.write(0);
+    led2.write(0);
+    led3.write(0);
+    led4.write(0); // splash screen
     while (1) {
         lcd.clear();
         lcd.printString("  Game Over ",0,2);  
@@ -414,7 +426,31 @@ void tutorial(){
 void death(){
     game._level_failed=0;
     lives--;
-    if(lives==0){game_over();}
+    if(lives==3){
+        led1.write(1);
+        led2.write(1);
+        led3.write(1);
+        led4.write(0);
+    }
+    if(lives==2){
+        led1.write(1);
+        led2.write(1);
+        led3.write(0);
+        led4.write(0);
+    }
+    if(lives==1){
+        led1.write(1);
+        led2.write(0);
+        led3.write(0);
+        led4.write(0);
+    }
+    if(lives==0){
+        led1.write(0);
+        led2.write(0);
+        led3.write(0);
+        led4.write(0);
+        game_over();}
+    
     lcd.clear();
     lcd.printString("LEVEL FAILED!",0,0);
     lcd.printString("A= retry level",0,1);
@@ -490,5 +526,4 @@ void game_complete(){
         ThisThread::sleep_for(100ms);
     }
 }
-
 
